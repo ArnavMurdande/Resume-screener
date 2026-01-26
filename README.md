@@ -7,6 +7,12 @@
 
 An intelligent Resume Screening tool that utilizes **Retrieval-Augmented Generation (RAG)** to provide deep insights into candidate suitability. It moves beyond keyword matching by understanding semantic context to calculate match scores and answer recruiter queries with verified evidence.
 
+## 🌐 Live Deployment
+
+The application is live and deployed on Vercel:
+
+🔗 **Live App:** https://resume-screener-tau.vercel.app
+
 ---
 
 ## 🏗️ Architecture Overview
