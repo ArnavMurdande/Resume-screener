@@ -1,85 +1,166 @@
-# RAG Resume Screener
+# AI-Powered Resume Screening with RAG 🚀
 
-A modern, AI-powered Resume Screening application built with React, FastAPI, Supabase (pgvector), and Gemini AI. This tool allows recruiters to upload a Candidate Resume and a Job Description (JD), then performs an intelligent gap analysis and answers questions about the candidate based on the documents.
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/Frontend-React_19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Supabase](https://img.shields.io/badge/Database-Supabase_pgvector-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![Gemini](https://img.shields.io/badge/AI-Google_Gemini-8E75B2?logo=googlegemini&logoColor=white)](https://ai.google.dev/)
 
-## 🏗️ Architecture
+An intelligent Resume Screening tool that utilizes **Retrieval-Augmented Generation (RAG)** to provide deep insights into candidate suitability. It moves beyond keyword matching by understanding semantic context to calculate match scores and answer recruiter queries with verified evidence.
 
-```mermaid
-graph LR
-    User[Recruiter] --> Client[React Frontend (Vite)]
-    Client -- Upload (PDF) --> API[FastAPI Backend]
-    Client -- Chat/Analyze --> API
-    API -- Extract Text --> PyPDF[pypdf]
-    API -- Embeddings --> Gemini[Gemini Embeddings]
-    API -- Store Vectors/Metadata --> DB[(Supabase pgvector)]
-    API -- Query (RAG) --> DB
-    API -- Generate Answer --> GeminiChat[Gemini Chat Model]
-```
+## 🌐 Live Deployment
 
-## 🚀 Key Features
+The application is live and deployed on Vercel:
 
-- **User Isolation:** Uses Session IDs to ensure data privacy between different users/sessions.
-- **Smart Chunking:** Utilizes LangChain's `RecursiveCharacterTextSplitter` for optimal context retrieval.
-- **Intelligent Analysis:** Generates a structured Match Report with Score, Strengths, and Gaps.
-- **Interactive Chat:** Ask questions about the specific candidate's fit for the specific JD.
-- **Modern UI:** Glassmorphism design with Dark Mode by default.
+🔗 **Live App:** https://resume-screener-tau.vercel.app
 
-## 🛠️ Setup & Installation
+---
+
+## 🏗️ Architecture Overview
+
+The system implements a production-grade RAG pipeline to ensure accuracy and prevent LLM hallucinations.
+
+Pipeline:
+1. Extraction: Parse text from PDF/TXT and clean it.
+2. Chunking: Split documents using RecursiveCharacterTextSplitter with overlap.
+3. Embedding: Generate vector embeddings using Gemini text-embedding-004.
+4. Vector Storage: Store embeddings in Supabase (PostgreSQL + pgvector with HNSW index).
+5. Retrieval: Perform cosine similarity search to fetch top-k relevant chunks.
+6. Generation: Gemini Flash generates answers grounded strictly in retrieved context.
+
+### Architecture Diagram
+
+![RAG Architecture Flow](https://github.com/ArnavMurdande/Resume-screener/blob/267dfa50aed8b6f3928e2091dd8f61ce90d72557/Diagram.png)
+
+
+---
+
+## ✨ Features
+
+- Semantic Match Scoring with strengths, gaps, and executive summary
+- RAG-powered contextual chat with session awareness
+- Verified evidence with exact resume quotes
+- Multi-key Gemini API rotation for rate-limit resilience
+- Modern professional UI with glassmorphism design
+
+---
+
+## 🚀 Setup Instructions
 
 ### Prerequisites
+- Python 3.10+
+- Node.js 18+
+- Supabase project with pgvector enabled
+- Google Gemini API key(s)
 
-- Node.js (v18+)
-- Python (3.9+)
-- Supabase Project (with `pgvector` enabled)
-- Google Gemini API Key
+---
 
-### 1. Backend Setup
+### Clone Repository
 
-```bash
-cd backend
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# Mac/Linux
-source venv/bin/activate
+    git clone https://github.com/ArnavMurdande/Resume-screener.git
+    cd Resume-screener
 
-pip install -r requirements.txt
-```
+---
 
-Create a `.env` file in `backend/`:
+### Backend Setup
 
-```env
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_service_role_key
-GOOGLE_API_KEY=your_gemini_api_key
-```
+    cd backend
+    python -m venv venv
+    venv\Scripts\activate        (Windows)
+    source venv/bin/activate     (Mac/Linux)
+    pip install -r requirements.txt
 
-Run the server:
+Create a .env file inside backend/:
 
-```bash
-python main.py
-```
+    GOOGLE_API_KEY_1=your_primary_gemini_key
+    GOOGLE_API_KEY_2=your_secondary_gemini_key
+    SUPABASE_URL=your_supabase_project_url
+    SUPABASE_KEY=your_supabase_service_role_key
 
-The API will be available at `http://localhost:8000`.
+Run backend:
 
-### 2. Frontend Setup
+    uvicorn main:app --reload
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+---
 
-The UI will be available at `http://localhost:5173`.
+### Frontend Setup
 
-## 📚 API Endpoints
+    cd ../Frontend
+    npm install
+    npm run dev
 
-| Method   | Endpoint   | Description                                                        |
-| :------- | :--------- | :----------------------------------------------------------------- |
-| **POST** | `/upload`  | Upload PDF (Resume/JD). Requires `file`, `doc_type`, `session_id`. |
-| **POST** | `/chat`    | Chat with the context. Body: `question`, `history`, `session_id`.  |
-| **POST** | `/analyze` | Generate Match Report. Body: `session_id`.                         |
+Frontend runs at:
+http://localhost:5173
 
-## 🛡️ Database Schema (Supabase)
+---
 
-Make sure you run the SQL RPC setup provided to enable vector functionality and session filtering.
+## 📋 API Documentation
+
+POST /upload  
+Uploads Resume or Job Description, chunks text, generates embeddings, and stores them in the vector DB.
+
+Content-Type: multipart/form-data  
+Fields:
+- file
+- doc_type (resume | jd)
+- session_id
+
+---
+
+POST /analyze  
+
+Request body:
+    {
+      "session_id": "string"
+    }
+
+Response:
+    {
+      "match_score": 78,
+      "strengths": [],
+      "gaps": [],
+      "summary": "string",
+      "highlights": []
+    }
+
+---
+
+POST /chat  
+
+Request body:
+    {
+      "question": "Does the candidate have React experience?",
+      "history": [],
+      "session_id": "string"
+    }
+
+---
+
+## 🛠️ Tech Stack
+
+Frontend:
+- React 19
+- TypeScript
+- Tailwind CSS
+- Lucide React
+
+Backend:
+- FastAPI
+- LangChain
+- pdfminer
+
+Vector Database:
+- Supabase (PostgreSQL + pgvector)
+
+AI Models:
+- Gemini Flash
+- Gemini text-embedding-004
+
+---
+
+## 👨‍💻 Author
+
+Arnav Murdande
+
+GitHub: https://github.com/ArnavMurdande  
+Portfolio: https://arnavmurdande.com  
+LinkedIn: https://www.linkedin.com/in/arnav-murdande/
