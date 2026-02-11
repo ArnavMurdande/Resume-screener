@@ -79,7 +79,7 @@ def get_batch_embeddings_with_retry(texts: List[str]) -> List[List[float]]:
     
     for i, key in enumerate(keys_to_try):
         try:
-            model = GoogleGenerativeAIEmbeddings(model="models/text-embedding-004", google_api_key=key)
+            model = GoogleGenerativeAIEmbeddings(model="models/embedding-001", google_api_key=key)
             return model.embed_documents(texts)
         except Exception as e:
             if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
