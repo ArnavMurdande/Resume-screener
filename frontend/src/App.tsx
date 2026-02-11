@@ -6,7 +6,7 @@ import { Send, FileText, Bot, User, Loader2, PieChart, X, CheckCircle2, AlertTri
 import './index.css';
 import DocUploadSection from './DocUploadSection';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL = 'https://resume-screener-2j8n.onrender.com';
 
 interface Highlight {
     quote: string;
