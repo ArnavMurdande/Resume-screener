@@ -2,11 +2,15 @@ fastapi
 uvicorn
 supabase
 python-dotenv
-langchain-google-genai
-langchain-community
-langchain-text-splitters
-langchain-core
 numpy
 pdfminer.six
 python-multipart
 pydantic
+
+langchain-core>=0.3.0
+langchain-text-splitters>=0.3.0
+langchain-community>=0.3.0
+
+# Must be these versions or newer
+langchain-google-genai>=4.1.0
+google-generativeai>=0.7.5
